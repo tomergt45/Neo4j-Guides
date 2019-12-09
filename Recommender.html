@@ -79,8 +79,10 @@
 <slide>
     <h1 class="header">Data Model</h1>
     <div class="content">
+        <br>
         <img
             src="https://cloud.githubusercontent.com/assets/21182456/26029641/1d2ba07a-37ef-11e7-867d-c8a133df4563.PNG">
+        <br>
         <h2>Metadata</h2>
         <br>
         <img
@@ -216,6 +218,7 @@
             MERGE (n)-[:REST_CUISINE]->(cuse:Cusine {name: line.Cuisine});
         </pre>
 
+        <br>
         <p>Used this query for better visualization of both USER_PROFILE and RESTAURANT paths:</p>
         <pre mode="cypher"
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
@@ -232,8 +235,8 @@
 <slide>
     <h1 class="header">Recommend Restaurants Based On User Preferences</h1>
     <div class="content">
+        <br>
         <h3>Three preferences: Mexican food, non-smoking, and medium priced.</h3>
-
         <pre mode="cypher"
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
             data-lang="cypher" lang="cypher">
@@ -277,8 +280,8 @@
             RETURN n4.name AS Restaurant,  k.city AS City;
         </pre>
 
+        <br>
         <h3>Four preferences: Japanese food, non-smoking, medium priced, and ambience (friends).</h3>
-
         <pre mode="cypher"
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
             data-lang="cypher" lang="cypher">
