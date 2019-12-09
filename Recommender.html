@@ -1,6 +1,7 @@
 <slide>
     <h1 class="header">Introduction</h1>
     <div class="content">
+        <p></p>
         <p>
             When it comes to recommender systems, I always remember the title song of 80’s sitcom, "Cheers". Here is
             how:
@@ -16,6 +17,8 @@
 <slide>
     <h1 class="header">What is Context?</h1>
     <div class="content">
+        <p></p>
+
         <p>
             Context is any information that can be used to characterize the situation of an entity. An entity is a
             person,
@@ -26,11 +29,15 @@
             2000), Vol.5/Iss.1, pp.4-7, 2001).
         </p>
 
+        <p></p>
+
         <p>
             Most common types of context are Identity ('who'), Acivity ('what'), Time ('when'), and location ('where')
             and
             one can use this information to determine 'why' the situation is occuring.
         </p>
+
+        <p></p>
 
         <p>
             Traditional recommender systems use two entities (two dimensional) users and items. This recommendation can
@@ -43,6 +50,7 @@
 <slide>
     <h1 class="header">Apply to Restaurant Recommendation</h1>
     <div class="content">
+        <p></p>
         <p>Imported restaurant and consumer data (that relates to Mexico) from
             <a
                 href="https://archive.ics.uci.edu/ml/datasets/Restaurant+%26+consumer+data">https://archive.ics.uci.edu/ml/datasets/Restaurant+%26+consumer+data</a>.
@@ -51,14 +59,18 @@
             pieces of information. For users, we can take each context (like smoking, cuisine, budget) as one dimension.
         </p>
 
+        <p></p>
         <img
             src="https://cloud.githubusercontent.com/assets/21182456/26038102/5973f520-38b5-11e7-9c6d-85b91fa95fc6.png">
 
+        <p></p>
         <p>Data on restaurants includes location, cuisine, smoking, alocohol, price and other information. For
             restaurants too we will have multiple dimensions to offer a better choice of restaurants based on user
             preferences.</p>
+        <p></p>
 
         <p>A pictorial description of a three dimensional approach is shown below:</p>
+        <p></p>
 
         <img
             src="https://cloud.githubusercontent.com/assets/21182456/26029637/fedfa15c-37ee-11e7-918c-cb7ae1b62915.png">
@@ -71,6 +83,7 @@
             selected user choices. The colored slice of the restaurant cube presents the restaurants that match the
             user
             selected choices.</p>
+        <p></p>
 
         <p>Same approach is applicable to even higher dimensions.</p>
     </div>
@@ -340,6 +353,6 @@
     }
 
     .content {
-        padding: 0 1em;
+        margin: 0 1em;
     }
 </style>
