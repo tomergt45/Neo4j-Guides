@@ -226,10 +226,110 @@
             RETURN c, n, p LIMIT 20;
         </pre>
 
-        <img
-            src="https://cloud.githubusercontent.com/assets/21182456/26045221/091a7baa-38fe-11e7-8396-21f181b1a808.png">
-
         <p>Left half is Restaurant and the right half is User Profile.</p>
+    </div>
+</slide>
+
+<slide>
+    <h1 class="header">Recommend Restaurants Based On User Preferences</h1>
+    <div class="content">
+        <h3>Three preferences: Mexican food, non-smoking, and medium priced.</h3>
+
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            //Users with selected choices..............
+
+            MATCH (c)-[]->(n)-[:CUISINE]->(r)-[:LIKES]->(t:Food {name: "Mexican"})
+            WITH COLLECT (n) AS nodes, t
+            UNWIND nodes AS n1
+            
+            MATCH (c)-[]->(n1)-[:HABITS]->(q)-[:SMOKER]->(v:Smoker {attr1: "false"})
+            WITH COLLECT (n1) AS nodes, t, v
+            UNWIND nodes AS n2
+            
+            MATCH (c)-[]->(n2)-[:HABITS]->(q)-[:BUDGET]->(v1:Budget {attr13: "medium"})
+            WITH v1, t, v MATCH (c)-[]->(n)-[:CUISINE]->(r)-[:LIKES]->(t:Food {name: "Mexican"})
+            WITH COLLECT (n) AS nodes, t
+            UNWIND nodes AS n1
+            
+            MATCH (c)-[]->(n1)-[:HABITS]->(q)-[:SMOKER]->(v:Smoker {attr1: "false"})
+            WITH COLLECT (n1) AS nodes, t, v
+            UNWIND nodes AS n2
+            
+            MATCH (c)-[]->(n2)-[:HABITS]->(q)-[:BUDGET]->(v1:Budget {attr13: "medium"})
+            WITH v1, t
+            
+            //WITH v1, t, v1, n2
+            //RETURN n2.uid as User, t.name as Cuisine, v.attr1 as Smoker, v1.attr13 as Budget;
+            
+            
+            // Find the restaurants that match the user preferences......
+            
+            MATCH (c)-[]->(n2)-[:REST_CUISINE]->(p:Cusine {name: t.name})
+            WITH COLLECT(n2) AS pn, v1
+            UNWIND pn AS n3
+            MATCH (c)-[]->(n3)-[:FEATURES]->(q1:Features {price: v1.attr13, smoking: "none"})
+            WITH COLLECT(n3) AS pn
+            
+            UNWIND pn AS n4
+            WITH DISTINCT n4
+            MATCH (c)-[]->(n4)-[:ADDRESS]-(k)
+            RETURN n4.name AS Restaurant,  k.city AS City;
+        </pre>
+
+        <h3>Four preferences: Japanese food, non-smoking, medium priced, and ambience (friends).</h3>
+
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH (c)-[]->(n)-[:CUISINE]->(r)-[:LIKES]->(t:Food {name: "Japanese"})
+            WITH COLLECT (n) AS nodes, t
+            UNWIND nodes AS n1
+            
+            MATCH (c)-[]->(n1)-[:HABITS]->(q)-[:SMOKER]->(v:Smoker {attr1: "false"})
+            WITH COLLECT (n1) AS nodes, t, v
+            UNWIND nodes AS n2
+            
+            MATCH (c)-[]->(n2)-[:HABITS]->(q)-[:BUDGET]->(v1:Budget {attr13: "medium"})
+            WITH COLLECT (n2) AS nodes, t, v, v1
+            UNWIND nodes AS n3
+            
+            MATCH (c)-[]->(n3)-[:HABITS]->(q)-[:AMBIENCE]->(v2:Ambnce {attr4: "friends"})
+            WITH COLLECT (n3) AS nodes, t, v, v1, v2
+            UNWIND nodes AS n4
+            
+            WITH t, v1
+            
+            //WITH v, t, v1, v2, n4
+            //RETURN n4.uid as User, t.name as Cuisine, v.attr1 as Smoker, v1.attr13 as Budget, v2.attr4 as Ambience;
+            
+            
+            MATCH (c)-[]->(n2)-[:REST_CUISINE]->(p:Cusine {name: t.name})
+            WITH COLLECT(n2) AS pn, v1
+            UNWIND pn AS n3
+            MATCH (c)-[]->(n3)-[:FEATURES]->(q1:Features {price: v1.attr13, smoking: "none", ambience: "familiar"})
+            WITH COLLECT(n3) AS pn2
+            
+            UNWIND pn2 AS n4
+            WITH DISTINCT n4
+            MATCH (c)-[]->(n4)-[:ADDRESS]-(k)
+            
+            RETURN n4.name AS Restaurant, k.city AS City;
+        </pre>
+    </div>
+</slide>
+
+<slide>
+    <h1 class="header">Conclusions…​</h1>
+    <div class="content">
+        <p>
+            A more personnalized recommendation of restaurants is presented based on user preferences. One problem here
+            is
+            the availability of relevant datasets. The more information the dataset provides, the more helpful it would
+            be
+            for the analysis and results.
+        </p>
     </div>
 </slide>
 
