@@ -114,80 +114,80 @@ CREATE (bloomsbury:PublishingHouse{name:'Bloomsbury Publishing'}),
        (apc:PublishingHouse{name:'American Publishing Company'})
 
 //IS_PART_OF
-CREATE   harry1-[:IS_PART_OF]->harryPotter
+CREATE   (harry1)-[:IS_PART_OF]->(harryPotter)
 
 //DESCRIBED_BY
-CREATE   harry1-[:DESCRIBED_BY]->magic,
-         harry1-[:DESCRIBED_BY]->students,
-         bookThief-[:DESCRIBED_BY]->students,
-         bookThief-[:DESCRIBED_BY]->death,
-         bookThief-[:DESCRIBED_BY]->judaism,
-         tom-[:DESCRIBED_BY]->boy,
-         tom-[:DESCRIBED_BY]->psychology,
-         tom-[:DESCRIBED_BY]->change
+CREATE   (harry1)-[:DESCRIBED_BY]->(magic),
+         (harry1)-[:DESCRIBED_BY]->(students),
+         (bookThief)-[:DESCRIBED_BY]->(students),
+         (bookThief)-[:DESCRIBED_BY]->(death),
+         (bookThief)-[:DESCRIBED_BY]->(judaism),
+         (tom)-[:DESCRIBED_BY]->(boy),
+         (tom)-[:DESCRIBED_BY]->(psychology),
+         (tom)-[:DESCRIBED_BY]->(change)
 
 //OF_TYPE
-CREATE   harry1-[:OF_TYPE]->fantasy,
-         harry1-[:OF_TYPE]->mystery,
-         harry1-[:OF_TYPE]->fiction,
-         bookThief-[:OF_TYPE]->novel,
-         bookThief-[:OF_TYPE]->historical,
-         bookThief-[:OF_TYPE]->fiction,
-         tom-[:OF_TYPE]->novel,
-         tom-[:OF_TYPE]->Bildungsroman,
-         tom-[:OF_TYPE]->childrensNovel
+CREATE   (harry1)-[:OF_TYPE]->(fantasy),
+         (harry1)-[:OF_TYPE]->(mystery),
+         (harry1)-[:OF_TYPE]->(fiction),
+         (bookThief)-[:OF_TYPE]->(novel),
+         (bookThief)-[:OF_TYPE]->(historical),
+         (bookThief)-[:OF_TYPE]->(fiction),
+         (tom)-[:OF_TYPE]->(novel),
+         (tom)-[:OF_TYPE]->(Bildungsroman),
+         (tom)-[:OF_TYPE]->(childrensNovel)
 
 //WRITTEN_BY
-CREATE   harry1-[:WRITTEN_BY]->rowling,
-         bookThief-[:WRITTEN_BY]->zusak,
-         tom-[:WRITTEN_BY]->twain
+CREATE   (harry1)-[:WRITTEN_BY]->(rowling),
+         (bookThief)-[:WRITTEN_BY]->(zusak),
+         (tom)-[:WRITTEN_BY]->(twain)
 
 //TRANSLATED_TO
-CREATE   harry1-[:TRANSLATED_TO]->harry1French,
-         harry1-[:TRANSLATED_TO]->harry1Polish,
-         harry1-[:TRANSLATED_TO]->harry1Spanish
+CREATE   (harry1)-[:TRANSLATED_TO]->(harry1French),
+         (harry1)-[:TRANSLATED_TO]->(harry1Polish),
+         (harry1)-[:TRANSLATED_TO]->(harry1Spanish)
 
 //HAS_ORIGINAL_LANGUAGE
-CREATE   harry1-[:HAS_ORIGINAL_LANGUAGE]->english,
-         bookThief-[:HAS_ORIGINAL_LANGUAGE]->english,
-         tom-[:HAS_ORIGINAL_LANGUAGE]->english
+CREATE   (harry1)-[:HAS_ORIGINAL_LANGUAGE]->(english),
+         (bookThief)-[:HAS_ORIGINAL_LANGUAGE]->(english),
+         (tom)-[:HAS_ORIGINAL_LANGUAGE]->(english)
 
 //OF_LANGUAGE
-CREATE   harry1French-[:OF_LANGUAGE]->french,
-         harry1Polish-[:OF_LANGUAGE]->polish,
-         harry1Spanish-[:OF_LANGUAGE]->spanish
+CREATE   (harry1French)-[:OF_LANGUAGE]->(french),
+         (harry1Polish)-[:OF_LANGUAGE]->(polish),
+         (harry1Spanish)-[:OF_LANGUAGE]->(spanish)
 
 //MADE_BY
-CREATE   harry1French-[:MADE_BY]->menard
+CREATE   (harry1French)-[:MADE_BY]->(menard)
 
 //MADE_INTO
-CREATE   harry1-[:MADE_INTO]->harry1Movie,
-         bookThief-[:MADE_INTO]->bookThiefMovie
+CREATE   (harry1)-[:MADE_INTO]->(harry1Movie),
+         (bookThief)-[:MADE_INTO]->(bookThiefMovie)
 
 //WHEN_ACTION
-CREATE   harry1-[:WHEN_ACTION]->centuryXX,
-         bookThief-[:WHEN_ACTION]->centuryXX,
-         tom-[:WHEN_ACTION]->centuryXIX
+CREATE   (harry1)-[:WHEN_ACTION]->(centuryXX),
+         (bookThief)-[:WHEN_ACTION]->(centuryXX),
+         (tom)-[:WHEN_ACTION]->(centuryXIX)
 
 //WHEN_PUBLISHED
-CREATE   harry1-[:WHEN_PUBLISHED]->year1997,
-         bookThief-[:WHEN_PUBLISHED]->year2005,
-         tom-[:WHEN_PUBLISHED]->year1876
+CREATE   (harry1)-[:WHEN_PUBLISHED]->(year1997),
+         (bookThief)-[:WHEN_PUBLISHED]->(year2005),
+         (tom)-[:WHEN_PUBLISHED]->(year1876)
 
 //WHERE_ACTION
-CREATE   harry1-[:WHERE_ACTION]->London,
-         bookThief-[:WHERE_ACTION]->Germany,
-         tom-[:WHERE_ACTION]->US
+CREATE   (harry1)-[:WHERE_ACTION]->(London),
+         (bookThief)-[:WHERE_ACTION]->(Germany),
+         (tom)-[:WHERE_ACTION]->(US)
 
 //WHERE_PUBLISHED
-CREATE   harry1-[:WHERE_PUBLISHED]->UK,
-         bookThief-[:WHERE_PUBLISHED]->Australia,
-         tom-[:WHERE_PUBLISHED]->US
+CREATE   (harry1)-[:WHERE_PUBLISHED]->(UK),
+         (bookThief)-[:WHERE_PUBLISHED]->(Australia),
+         (tom)-[:WHERE_PUBLISHED]->(US)
 
 //PUBLISHED_BY
-CREATE   harry1-[:PUBLISHED_BY]->bloomsbury,
-         bookThief-[:PUBLISHED_BY]->picador,
-         tom-[:PUBLISHED_BY]->apc
+CREATE   (harry1)-[:PUBLISHED_BY]->(bloomsbury),
+         (bookThief)-[:PUBLISHED_BY]->(picador),
+         (tom)-[:PUBLISHED_BY]->(apc)
         </pre>
 
     </div>
@@ -203,7 +203,7 @@ CREATE   harry1-[:PUBLISHED_BY]->bloomsbury,
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
             data-lang="cypher" lang="cypher">
             MATCH (b:Book)-[:OF_TYPE]->(:Genre{name:'novel'}),
-       b-[:DESCRIBED_BY]->(k:Keyword)
+       (b)-[:DESCRIBED_BY]->(k:Keyword)
 RETURN b.title AS book, collect(k.name) AS keywords
 ORDER BY b.title
         </pre>
@@ -213,8 +213,8 @@ ORDER BY b.title
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
             data-lang="cypher" lang="cypher">
         MATCH (b:Book)-[:PUBLISHED_BY]->(:PublishingHouse{name:'Bloomsbury Publishing'}),
-       b-[:WHEN_PUBLISHED]->(t:Time),
-       b-[:WHERE_PUBLISHED]->(p:Place)
+       (b)-[:WHEN_PUBLISHED]->(t:Time),
+       (b)-[:WHERE_PUBLISHED]->(p:Place)
 RETURN b.title AS book, t.year AS time, p.country AS place
 ORDER BY t DESC, b.title
         </pre>
@@ -224,7 +224,7 @@ ORDER BY t DESC, b.title
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
             data-lang="cypher" lang="cypher">
         MATCH (b:Book)-[:WHERE_ACTION]->(:Place{country:'Germany'}),
-       b-[:WHEN_ACTION]->(:Time{century:'XX'})
+       (b)-[:WHEN_ACTION]->(:Time{century:'XX'})
 RETURN b.title AS book
 ORDER BY b.title
         </pre>
@@ -234,7 +234,7 @@ ORDER BY b.title
             class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
             data-lang="cypher" lang="cypher">
         MATCH (b:Book)-[:MADE_INTO]->(m:Movie),
-        b-[:WHEN_PUBLISHED]->(t:Time)
+        (b)-[:WHEN_PUBLISHED]->(t:Time)
  WHERE m.title<>""
  RETURN b.title AS book, t.year AS time
  ORDER BY t.year DESC, b.title
