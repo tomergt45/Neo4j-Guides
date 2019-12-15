@@ -1,0 +1,249 @@
+<slide>
+    <h1 class="header">Introduction</h1>
+    <div class="content">
+        <p>Globalization and outsourcing were the main drivers for increasing the complexity of supply chains. At the
+            same time, natural catastrophes as well as economic, social and ethical aspects drove the importance of
+            having a good overview and understanding of the entire supply chain rather than just focusing on your direct
+            suppliers and distributors.
+        </p>
+
+        <p>
+            In order to model and understand supply chains better, more and more sources refer to modern supply chains
+            as supply networks. Therefore, it looks like a perfect environment to figure out how Neo4j can help us
+            mastering the supply chain network challenge.
+        </p>
+    </div>
+</slide>
+
+<slide>
+    <h1 class="header">Introduction</h1>
+    <div class="content">
+        <p>
+            For the sake of simplicity, every node has the same following attributes, lat = latitude, and lon =
+            longitude.
+        </p>
+
+        <h5>Figure 1. Initial Data Model</h5>
+        <p>
+            We categorize our suppliers into RawSupplierA and SupplierA for fresh products and RawSupplierB and
+            SupplierB
+            for durable commodities. The rest is straight forward. The distribution is through wholesaler and retailer.
+        </p>
+
+        <h5>Figure 2. Distribution through wholesaler and Retailer</h5>
+        <p>
+            Supply chains are inherently complex and can be modeled and clustered in several different ways. For the
+            sake
+            of understandability, we will keep it simple and neglect a lot of things, which would be essential in a real
+            world application.
+        </p>
+
+        <h3>A real-world example</h3>
+        <p>
+            This supply chain could be a good example for soft drink supply chain. Every participant in the chain is a
+            sample commodity or entity.
+        </p>
+    </div>
+</slide>
+
+<slide>
+    <h1 class="header">Challenges of supply chain management</h1>
+    <div class="content">
+        <p>
+            The biggest challenge in supply chain management is the inherent complexity of modern supply chains.
+            Therefore, none of these examples is sufficient enough for decision-making. There are many additional
+            questions to answer, which are beyond of the scope of this little scenario.
+        </p>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            CREATE (:Product { name: "Product", lat: tan(rand())*100, lon: tan(rand())*100, co2: 200, cost: 100, time: 0 })
+            FOREACH (r IN range(0,1)|
+                     CREATE (:Wholesaler { name:"Wholesaler" + r, cost: round(exp(rand()*3)+20), co2: round(exp(rand()*8)+250), lat: tan(rand())*100, lon: tan(rand())*100, time: round(rand()*5)}))
+            FOREACH (r IN range(0,10)|
+            CREATE (:Retailer { name:"Retailer" + r, cost: round(exp(rand()*3)+20), co2: round(exp(rand()*8)+250), lat: tan(rand())*100, lon: tan(rand())*100, time: 1}))
+            FOREACH (r IN range(0,2)|
+                     CREATE (:SupplierA { name:"SupplierA" + r, cost: round(exp(rand()*3)+20), co2: round(exp(rand()*8)+250), lat: tan(rand())*100, lon: tan(rand())*100, time: round(rand()*5)}))
+            FOREACH (r IN range(0,1)|
+                     CREATE (:SupplierB { name:"SupplierB" + r, cost: round(exp(rand()*3)+20), co2: round(exp(rand()*8)+250), lat: tan(rand())*100, lon: tan(rand())*100, time: round(rand()*5)}))
+            FOREACH (r IN range(0,5)|
+                     CREATE (:RawSupplierA{ name:"RawSupplierA" + r, cost: round(exp(rand()*3)+20), co2: round(exp(rand()*8)+250), lat: tan(rand())*100, lon: tan(rand())*100, time: round(rand()*5)}))
+            FOREACH (r IN range(0,5)|
+                     CREATE (:RawSupplierB{ name:"RawSuppplierB" + r, cost: round(exp(rand()*3)+20), co2: round(exp(rand()*8)+250), lat: tan(rand())*100, lon: tan(rand())*100, time: round(rand()*5)}))
+        </pre>
+
+        <h2 style="cursor: pointer;">Connect the Graph</h2>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH (sa:SupplierA), (p:Product), (w:Wholesaler), (r:Retailer)
+            CREATE UNIQUE (sa)-[:DELIVER]->(p)-[:DELIVER]->(w) -[:DELIVER]->(r)
+            WITH p, sa
+            MATCH (sb:SupplierB)
+            CREATE UNIQUE (sb)-[:DELIVER]->(p)
+            WITH sb, sa
+            MATCH (ra:RawSupplierA), (rb:RawSupplierB)
+            CREATE UNIQUE (ra)-[:DELIVER]->(sa)
+            CREATE UNIQUE (rb)-[:DELIVER]->(sb)
+        </pre>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH (a)-[r]-()
+            RETURN a, r
+        </pre>
+    </div>
+</slide>
+
+<slide>
+    <h1 class="header">Let’s add the distance between every Supplier</h1>
+    <div class="content">
+        <p>Adding the distance between connected nodes is based on the longitude and latitude.</p>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH (a)-[r]->(b)
+            WITH r, a, b, 2 * 6371 * asin(sqrt(haversin(radians(toInt(a.lat) - toInt(b.lat))) + cos(radians(a.lat))*
+              cos(radians(b.lat))* haversin(radians(a.lon - b.lon)))) AS dist
+            SET r.km = round(dist)
+        </pre>
+
+        <h4>Case: Find best Wholesaler</h4>
+        <p>
+            Let’s start off with a good old transportation problem: Find the Wholesaler with the least accumulated
+            distance to every retailer. Thanks to Cypher, this can be done very easily.
+        </p>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH    (p:Product)-[r1]->(w)-[r2]->(re:Retailer)
+            WITH     DISTINCT(substring(w.name, 10)) AS Num,
+                     avg(r1.km + r2.km) AS Average_Distance,
+                     sum(r1.km + r2.km) AS Total_Distance
+            RETURN   "Wholesaler" + Num AS Wholesaler, Total_Distance, round(Average_Distance)
+            ORDER BY Total_Distance
+        </pre>
+
+        <h4>Case: We want it fresh</h4>
+        <p>Let’s assume we want to guarantee that all fresh ingredients in our drink are not older than seven days.</p>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH chain=(rs:RawSupplierA)-[r*]->(re:Retailer)
+            WITH reduce(wait = 0, s IN nodes(chain)| wait + s.time) AS waitTime, chain
+            WHERE waitTime < 8
+            WITH extract(n IN nodes(chain)| n.name) AS SupplyChain, waitTime
+            ORDER BY SupplyChain[1]
+            RETURN SupplyChain, waitTime
+        </pre>
+
+        <p>
+            HINT: Almost all values are based on random value generation. In case the table is empty, simply reload the
+            graph.
+        </p>
+
+        <h4>Case: It’s time to put it togehter</h4>
+        <p>
+            Let’s assume: we don’t only want a fresh product. Additionally, we want it locally. Therefore, we want to
+            make sure that our product needs less than 8 days and travels less than 23000km from the farmer to the
+            shelve in a grocery store.
+        </p>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH    chain=(rs:RawSupplierA)-[r*]->(re:Retailer)
+            WITH     reduce(wait = 0, s IN nodes(chain)| wait + s.time) AS waitTime, chain
+            WHERE    waitTime < 8
+            WITH     reduce(dist = 0, s IN relationships(chain)| dist + s.km) AS distance, waitTime, chain
+            WHERE    distance < 23000
+            WITH     extract(n IN nodes(chain)| n.name) AS SupplyChain
+            RETURN   collect(DISTINCT(SupplyChain[1])) AS Supplier, collect(DISTINCT(SupplyChain[0])) AS RawSupplier
+        </pre>
+
+        <p>
+            Here we want to know which RawSupplier and Supplier can guarantee this promise. Of course, we would have to
+            specify the exact path through the network, in order to fulfill the promise of being local.
+        </p>
+
+        <h4>Case: Find the Top "Sample" Supply Chain within the Supply Chain Network</h4>
+        <p>
+            We define 'sample' supply chain as having one participant for every processing step in the supply chain. The
+            'top' simply means to find the chain with best rating. Please keep in mind, that we isolate and rate every
+            'sample' supply chain and don’t evaluate the entire supply chain at once. We compare every possible supply
+            chain in terms of cost, time and waste. The comparison is based on a weighted score.
+        </p>
+        <p>Total score = (cost 60%) + (waste 20%) + (time 20%)</p>
+        <p>
+            Total score can be used as a KPI and eases complex decision-making and quick comparison of values of a
+            different nature. Furthermore, this could be very useful to examine other members of the supply chain and
+            take the measurements as tangible goals for improving these members or monitoring the entire supply chain.
+            The total score also comes in handy in case we want to diminish the number of our (raw)supplier and only
+            retain the top performer.
+        </p>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH  (n)
+            SET n.costR = round(rand()*10)
+            SET n.timeR = round(rand()*10)
+            SET n.wasteR = round(rand()*10)
+        </pre>
+        <pre mode="cypher"
+            class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"
+            data-lang="cypher" lang="cypher">
+            MATCH    chain=(rsB:RawSupplierB)-[r*]->(p:Product)<-[r*]-(rsA:RawSupplierA)
+            WITH     reduce(wait = 0, s IN nodes(chain)| wait + s.timeR) AS tRating,
+                     reduce(wait = 0, s IN nodes(chain)| wait + s.costR) AS cRating,
+                     reduce(wait = 0, s IN nodes(chain)| wait + s.wasteR) AS wRating, chain, p
+            WITH     chain, p, ((cRating*0.6) + (wRating*0.2) + (tRating*0.2) ) AS score
+            WITH     score, p, extract(n IN nodes(chain)| n.name) AS SupplyChain1 ORDER BY score DESC
+            MATCH    chain=(p)-[r*]->(re:Retailer)
+            WITH     reduce(wait = 0, s IN nodes(chain)| wait + s.timeR) AS tRating,
+                     reduce(wait = 0, s IN nodes(chain)| wait + s.costR) AS cRating,
+                     reduce(wait = 0, s IN nodes(chain)| wait + s.wasteR) AS wRating, chain, score, SupplyChain1
+            WITH     chain, SupplyChain1, ((cRating*0.6) + (wRating*0.2) + (tRating*0.2) + score) AS totalScore
+            WITH     SupplyChain1, totalScore, extract(n IN nodes(chain)| n.name) AS SupplyChain2 ORDER BY totalScore DESC
+            RETURN   SupplyChain2 + SupplyChain1, totalScore
+            LIMIT   1
+    </pre>
+    </div>
+</slide>
+
+<slide>
+    <h1 class="header">Introduction</h1>
+    <div class="content">
+        <div class="ulist">
+            <ul>
+                <li>
+                    <p>Due to the nature of supply chains, which is inherently a graph or network structure, graph
+                        databases are more suitable to monitor, maintain and model supply chain problems e.g. Risk
+                        Management, Bullwhip-Effect, Transport Optimization, quality assurance. . .</p>
+                </li>
+                <li>
+                    <p>In combination with RFID chips and could computing, graph database technology offers a broad
+                        variety of applications for real-time monitoring and process improvement</p>
+                </li>
+            </ul>
+        </div>
+</slide>
+
+<style>
+    .header {
+        font-weight: 800;
+        font-size: 18px;
+    }
+
+    .content {
+        margin: 0 1em;
+    }
+
+    ul li {
+        list-style-image: url(../images/list-circle-bullet.svg);
+    }
+
+    strong,
+    b {
+        font-weight: bold;
+        line-height: inherit;
+    }
+</style>
